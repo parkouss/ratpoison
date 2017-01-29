@@ -1088,3 +1088,24 @@ find_frame_number (int num)
 
   return NULL;
 }
+
+rp_frame *
+find_frame_at_cursor_pos (int x, int y)
+{
+  int i;
+  rp_frame *cur;
+
+  for (i=0; i<num_screens; i++)
+    {
+      rp_screen *s = &screens[i];
+
+      list_for_each_entry (cur, &s->frames, node)
+        {
+          if (x >= (s->left + cur->x) && x <= (s->left + cur->x + cur->width)
+              && y >= (s->top + cur->y) && y <= (s->top + cur->y + cur->height))
+            return cur;
+        }
+    }
+
+  return NULL;
+}

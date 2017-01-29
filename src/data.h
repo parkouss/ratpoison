@@ -275,6 +275,9 @@ struct rp_defaults
 
   /* Frame indicator format */
   char *frame_fmt;
+
+  /* Window focus policy for the mouse: none or click */
+  int mouse_focus_policy;
 };
 
 /* Information about a child process. */

@@ -56,5 +56,6 @@ rp_frame *find_last_frame (void);
 rp_frame * find_frame_number (int num);
 
 rp_frame *current_frame (void);
+rp_frame *find_frame_at_cursor_pos (int x, int y);
 
 #endif

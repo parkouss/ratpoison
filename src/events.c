@@ -793,6 +793,19 @@ selection_clear (void)
   selection.len = 0;
 }
 
+static void
+button_press (XButtonEvent * ev)
+{
+  rp_frame * frame;
+
+  if (defaults.mouse_focus_policy == MOUSE_FOCUS_POLICY_CLICK)
+    {
+      frame = find_frame_at_cursor_pos (ev->x_root, ev->y_root);
+      if (frame)
+        set_active_frame(frame, 1);
+    }
+}
+
 /* Given an event, call the correct function to handle it. */
 static void
 delegate_event (XEvent *ev)
@@ -871,7 +884,12 @@ delegate_event (XEvent *ev)
       PRINT_DEBUG (("--- Handling ConfigureNotify ---\n"));
       configure_notify( &ev->xconfigure );
       break;
-	
+
+    case ButtonPress:
+      XAllowEvents (dpy, ReplayPointer, CurrentTime); /* ReplayPointer resends the mouse event */
+      button_press(&ev->xbutton);
+      break;
+
     case MapNotify:
     case Expose:
     case MotionNotify:

@@ -57,6 +57,10 @@
 #define WIN_NAME_RES_CLASS      1
 #define WIN_NAME_RES_NAME       2
 
+/* Possible values for defaults.mouse_focus_policy */
+#define MOUSE_FOCUS_POLICY_NONE  0
+#define MOUSE_FOCUS_POLICY_CLICK 1
+
 /* Possible directions to traverse the completions list. */
 #define COMPLETION_NEXT         0
 #define COMPLETION_PREVIOUS     1

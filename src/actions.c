@@ -162,6 +162,7 @@ static cmdret * set_inputwidth (struct cmdarg **args);
 static cmdret * set_waitcursor (struct cmdarg **args);
 static cmdret * set_winfmt (struct cmdarg **args);
 static cmdret * set_winname (struct cmdarg **args);
+static cmdret * set_mousefocuspolicy (struct cmdarg **args);
 static cmdret * set_framefmt (struct cmdarg **args);
 static cmdret * set_fgcolor (struct cmdarg **args);
 static cmdret * set_bgcolor (struct cmdarg **args);
@@ -373,6 +374,7 @@ init_set_vars (void)
   add_set_var ("wingravity", set_wingravity, 1, "", arg_GRAVITY);
   add_set_var ("winliststyle", set_winliststyle, 1, "", arg_STRING);
   add_set_var ("winname", set_winname, 1, "", arg_STRING);
+  add_set_var ("mousefocuspolicy", set_mousefocuspolicy, 1, "", arg_STRING);
 }
 
 /* i_nrequired is the number required when called
@@ -1256,6 +1258,30 @@ static void
 ungrab_rat (void)
 {
   XUngrabPointer (dpy, CurrentTime);
+}
+
+static void
+grab_button (void)
+{
+  int j;
+  for (j=0; j<num_screens; j++)
+    {
+      rp_screen *screen = &screens[j];
+      XGrabButton(dpy, AnyButton, AnyModifier, screen->root,
+                  True, ButtonPressMask,
+                  GrabModeSync, GrabModeAsync, None, None);
+    }
+}
+
+static void
+ungrab_button (void)
+{
+  int j;
+  for (j=0; j<num_screens; j++)
+    {
+      rp_screen *screen = &screens[j];
+      XUngrabButton(dpy, AnyButton, AnyModifier, screen->root);
+    }
 }
 
 /* Unmanage window */
@@ -4299,6 +4325,42 @@ set_winname (struct cmdarg **args)
     defaults.win_name = WIN_NAME_RES_CLASS;
   else
     return cmdret_new (RET_FAILURE, "set winname: invalid argument `%s'", name);
+
+  return cmdret_new (RET_SUCCESS, NULL);
+}
+
+static cmdret *
+set_mousefocuspolicy(struct cmdarg **args)
+{
+  char *policy;
+
+  if (args[0] == NULL)
+    switch (defaults.mouse_focus_policy)
+      {
+      case MOUSE_FOCUS_POLICY_NONE:
+        return cmdret_new (RET_SUCCESS, "none");
+      case MOUSE_FOCUS_POLICY_CLICK:
+        return cmdret_new (RET_SUCCESS, "click");
+      default:
+        PRINT_DEBUG (("Unknown mouse_focus_policy\n"));
+        return cmdret_new (RET_FAILURE, "unknown");
+      }
+
+  policy = ARG_STRING(0);
+
+  if (!strncmp (policy, "none", sizeof ("none")))
+    {
+      defaults.mouse_focus_policy = MOUSE_FOCUS_POLICY_NONE;
+      ungrab_button();
+    }
+  else if (!strncmp (policy, "click", sizeof ("click")))
+    {
+      defaults.mouse_focus_policy = MOUSE_FOCUS_POLICY_CLICK;
+      grab_button();
+    }
+  else
+    return cmdret_new (RET_FAILURE,
+                       "set mousefocuspolicy: invalid argument `%s'", policy);
 
   return cmdret_new (RET_SUCCESS, NULL);
 }

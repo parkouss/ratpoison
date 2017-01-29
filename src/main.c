@@ -583,6 +583,8 @@ init_defaults (void)
   defaults.history_expansion = False;
   defaults.frame_selectors = xstrdup ("");
   defaults.maxundos = 20;
+
+  defaults.mouse_focus_policy = MOUSE_FOCUS_POLICY_NONE;
 }
 
 int
